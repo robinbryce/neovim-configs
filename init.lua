@@ -7,6 +7,7 @@ vim.opt.shiftwidth = 2
 vim.opt.expandtab = true
 
 require("config.lazy")
+require("config.suppress_warnings")
 
 -- global keymap
 vim.keymap.set("n", "<leader>a", "<cmd>AerialToggle!<CR>")
