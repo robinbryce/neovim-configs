@@ -2,10 +2,21 @@
 
 --- suppress all errors like - E5560: nvim_create_autocmd must not be called in a fast event context
 --- in the case of neotest, they are completley benign and safely ignored
-local orig_notify = vim.notify
-vim.notify = function(msg, level, opts)
-  if msg:match("nvim_create_autocmd must not be called in a fast event context") then
-    return
-  end
-  orig_notify(msg, level, opts)
-end
+-- local orig_notify = vim.notify
+-- local notify_logfile = vim.fn.stdpath("data") .. "/notify.log"
+--
+-- vim.notify = function(msg, level, opts)
+--   -- filter out any unwanted messages first
+--   if msg:match("nvim_create_autocmd must not be called in a fast event context") then
+--     return
+--   end
+--
+--   -- if vim.g.enable_notify_logging then
+--   local f = io.open(notify_logfile, "a")
+--   if f then
+--     f:write(os.date("[%Y-%m-%d %H:%M:%S] "), msg, "\n")
+--     f:close()
+--   end
+--   -- end
+--   orig_notify("--" .. msg, level, opts)
+-- end
