@@ -13,6 +13,7 @@ return {
     config = function()
       local dap = require("dap")
       local util_dap = require("util.dap")
+      util_dap.setup()
 
       dap.set_log_level("TRACE") -- Enables internal adapter debug logging
       dap.listeners.before.launch["run-prelaunch-task"] = function(config)

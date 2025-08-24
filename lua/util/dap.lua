@@ -2,6 +2,60 @@
 
 local M = {}
 
+function M.setup()
+  local dap = require("dap")
+  local saved_keymaps = {}
+
+  local dap_keys = {
+    ["<F5>"] = function()
+      dap.continue()
+    end,
+    ["<F10>"] = function()
+      dap.step_over()
+    end,
+    ["<F11>"] = function()
+      dap.step_into()
+    end,
+    ["<F12>"] = function()
+      dap.step_out()
+    end,
+    ["<F9>"] = function()
+      dap.toggle_breakpoint()
+    end,
+  }
+
+  local function set_dap_keymaps()
+    saved_keymaps = {}
+    for key, action in pairs(dap_keys) do
+      local existing = vim.fn.maparg(key, "n", false, true)
+      if existing and existing.rhs then
+        saved_keymaps[key] = existing
+      end
+      vim.keymap.set("n", key, action, { silent = true, noremap = true, desc = "DAP " .. key })
+    end
+  end
+
+  local function restore_keymaps()
+    for key in pairs(dap_keys) do
+      vim.keymap.del("n", key)
+      local saved = saved_keymaps[key]
+      if saved then
+        vim.keymap.set("n", key, saved.rhs, {
+          silent = saved.silent == 1,
+          noremap = saved.noremap == 1,
+          expr = saved.expr == 1,
+        })
+      end
+    end
+    saved_keymaps = {}
+  end
+
+  dap.listeners.before.attach["keymap_setup"] = set_dap_keymaps
+  dap.listeners.before.launch["keymap_setup"] = set_dap_keymaps
+  dap.listeners.after.event_terminated["keymap_restore"] = restore_keymaps
+  dap.listeners.after.event_exited["keymap_restore"] = restore_keymaps
+end
+
 function M.clone_and_extend(base, overrides)
   local result = {}
   for k, v in pairs(base) do
