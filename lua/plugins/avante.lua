@@ -1,9 +1,13 @@
 return {
+  -- Claude-first AI agent for Neovim. Copilot is intentionally not used
+  -- in this config; Avante + Claude is the primary AI experience here.
   "yetone/avante.nvim",
   -- if you want to build from source then do `make BUILD_FROM_SOURCE=true`
   -- ⚠️ must add this setting! ! !
   build = "make",
   event = "VeryLazy",
+  -- Disable Avante when running inside VSCode/Cursor (vim.g.vscode=true)
+  cond = function() return not vim.g.vscode end,
   version = false, -- Never set this value to "*"! Never!
   ---@module 'avante'
   ---@type avante.Config
@@ -38,14 +42,11 @@ return {
     "nvim-lua/plenary.nvim",
     "MunifTanjim/nui.nvim",
     --- The below dependencies are optional,
-    "echasnovski/mini.pick", -- for file_selector provider mini.pick
-    "nvim-telescope/telescope.nvim", -- for file_selector provider telescope
-    "hrsh7th/nvim-cmp", -- autocompletion for avante commands and mentions
+    "nvim-mini/mini.pick", -- for file_selector provider mini.pick
     "ibhagwan/fzf-lua", -- for file_selector provider fzf
     "stevearc/dressing.nvim", -- for input provider dressing
     "folke/snacks.nvim", -- for input provider snacks
-    "nvim-tree/nvim-web-devicons", -- or echasnovski/mini.icons
-    "zbirenbaum/copilot.lua", -- for providers='copilot'
+    "nvim-tree/nvim-web-devicons", -- or nvim-mini/mini.icons
     {
       -- support for image pasting
       "HakonHarnes/img-clip.nvim",

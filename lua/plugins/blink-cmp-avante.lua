@@ -1,5 +1,9 @@
 return {
+  -- Integrate Avante (Claude) as a blink.cmp source. Copilot is not used,
+  -- to keep a single, Claude-first completion experience.
   "saghen/blink.cmp",
+  -- Disable Avante completion source inside VSCode/Cursor
+  cond = function() return not vim.g.vscode end,
   dependencies = {
     "Kaiser-Yang/blink-cmp-avante",
     -- Snippet engine + community snippets (recommended)
