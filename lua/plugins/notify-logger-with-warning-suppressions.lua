@@ -1,5 +1,6 @@
 return {
   "nvim-lua/plenary.nvim", -- safe dummy dependency
+  enabled = false, -- temporarily disabled to avoid conflicts with LazyVim's lazy_notify
   lazy = false,
   priority = 1000,
   config = function()

@@ -2,7 +2,7 @@
 -- Default options that are always set: https://github.com/LazyVim/LazyVim/blob/main/lua/lazyvim/config/options.lua
 -- Add any additional options here
 -- vim.o.mouse = "a"
-vim.g.enable_notify_logging = true -- or false to disable
+vim.g.enable_notify_logging = false -- set to true temporarily if you need notify.log for diagnostics
 -- set textwidth to 80 columns for `gq`, `gw`, etc.
 vim.opt.textwidth = 79
 vim.opt.colorcolumn = "80,100"
