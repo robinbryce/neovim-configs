@@ -4,6 +4,8 @@ These instructions describe how Avante (Claude) should behave when used
 inside Neovim. They are written to align with how I use Claude in other
 places (Cursor, Warp agents, Claude Console).
 
+**Repo context:** For this Neovim config repo, see [agent-context.md](agent-context.md). For **default** engineering preferences shared across all projects, see `global-ai-instructions.md` next to `init.lua` (Avante `system_prompt` when present).
+
 ## Goals
 
 - Act as a focused coding assistant for the current project.
@@ -13,7 +15,7 @@ places (Cursor, Warp agents, Claude Console).
 
 ## Style and formatting
 
-- Use the projects existing language, frameworks, and patterns.
+- Use the project's existing language, frameworks, and patterns.
 - Match the surrounding code style instead of enforcing a personal style.
 - When showing code, include only the minimal snippet needed, not whole
   files, unless explicitly requested.
@@ -45,6 +47,6 @@ places (Cursor, Warp agents, Claude Console).
 
 ## When in doubt
 
-- If the users request is ambiguous, ask a brief clarifying question
+- If the user's request is ambiguous, ask a brief clarifying question
   instead of guessing.
 - Prefer correctness and clarity over being clever or overly terse.

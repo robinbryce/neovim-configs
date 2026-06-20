@@ -6,7 +6,11 @@ vim.opt.tabstop = 2
 vim.opt.shiftwidth = 2
 vim.opt.expandtab = true
 
+require("config.project_listen") -- deterministic RPC socket; before plugins
+require("config.cursor_account")
+require("config.anthropic_account")
+require("config.configure_mcp_location")
 require("config.lazy")
 require("config.suppress_warnings")
 -- global keymap
-vim.keymap.set("n", "<leader>a", "<cmd>AerialToggle!<CR>")
+vim.keymap.set("n", "<leader>o", "<cmd>AerialToggle!<CR>", { desc = "[O]utline (Aerial)" })

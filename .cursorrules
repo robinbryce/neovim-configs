@@ -1,0 +1,7 @@
+# Cursor rules
+
+Use the project context document for repo structure, conventions, and quick reference:
+
+**→ [agent-context.md](agent-context.md)**
+
+That file is the single source for an agent-friendly index, layout, and conventions. See also [WARP.md](WARP.md) for detailed workflows and [avante.md](avante.md) for AI assistant style.

@@ -2,6 +2,8 @@
 
 This file provides guidance to WARP (warp.dev) when working with code in this repository.
 
+**For a concise, agent-friendly context summary:** see [agent-context.md](agent-context.md).
+
 ## Repository overview
 
 This repo is a Neovim configuration based on the LazyVim starter template. It bootstraps
@@ -70,15 +72,33 @@ Go‑specific DAP configuration is in `lua/plugins/go-nvim-dap.lua`, which adjus
 Toggling `vim.g.enable_notify_logging` (set in `lua/config/options.lua`) controls
 whether a new session header and subsequent notifications are appended to that log.
 
+### Cursor account / MCP (startup cwd)
+
+`lua/config/cursor_context.lua` runs once at startup: **Neovim’s initial working
+directory** determines work vs personal (`~/Dev/justgames` prefix) for
+`CURSOR_API_KEY` / MCP paths for the **entire session**. Editing buffers in other
+repos does not switch accounts; restart Neovim from a different cwd if you need
+the other account.
+
+### ARC/ADR and lazy-fullstack `docs/`
+
+- **`:ArcNew`** / **`:AdrNew`** (from `doc-workflow.lua`) create numbered files under
+  `docs/arc/` and `docs/adr/` in the **git root of the current buffer** (the project
+  you are working in), not in the Neovim config repo by default.
+- Under **lazy-fullstack** itself, `docs/` is reserved for **integration tooling**
+  the config depends on (e.g. [docs/cursor-agent-capabilities.md](docs/cursor-agent-capabilities.md)),
+  not application documentation.
+- **`:PlanNew`** / **`<leader>Cp`** start Cursor Agent **plan** mode (rail 2);
+  interactive plans stay in agent storage, not in numbered `docs/plan*` files.
+
 ## Code structure and architecture
 
 ### Entry point and global configuration
 
 - `init.lua` is the main entry point. It:
   - Sets some global options (e.g., tab width, `autowrite`).
-  - Requires `config.lazy` to bootstrap plugins.
-  - Requires `config.suppress_warnings` for additional runtime behavior.
-  - Adds a global mapping `<leader>a` to toggle the Aerial outline.
+  - Requires `config.cursor_account`, `config.configure_mcp_location`, `config.lazy`, and `config.suppress_warnings`.
+  - Adds a global mapping `<leader>o` to toggle the Aerial outline (AI / Avante uses the `<leader>a` prefix via LazyVim and `lua/config/keymaps.lua`).
 
 - `lua/config/` contains core editor configuration:
   - `lazy.lua` – lazy.nvim and LazyVim setup (plugin specs, performance tweaks,
@@ -118,8 +138,7 @@ patterns:
     Solidity buffers.
 
 - Editor UX and navigation:
-  - `aerial.lua` – configures `stevearc/aerial.nvim`, used with the `<leader>a`
-    mapping in `init.lua`.
+  - `aerial.lua` – configures `stevearc/aerial.nvim`, toggled with `<leader>o` in `init.lua`.
   - `snacks.lua` – tweaks the Snacks explorer to show hidden files and ignore
     `.gitignore` by default.
   - Additional plugin specs (e.g., `neo-tree`, `tmux-navigator`, etc.) may adjust
@@ -131,9 +150,11 @@ patterns:
     reuse from multiple plugins.
 
 - AI and assistant integrations:
-  - `avante.lua` – configures `yetone/avante.nvim` with a provider named `claude`
-    and an optional `instructions_file` (`avante.md`) if present in a project.
-  - `blink-cmp-avante.lua` – integrates Avante with completion (if present).
+  - `avante.lua` – configures `yetone/avante.nvim` (Claude + optional Cursor ACP),
+    project `avante.md`, and optional `global-ai-instructions.md` under `stdpath("config")`.
+  - `blink-cmp-avante.lua` – integrates Avante with blink.cmp (LSP listed before Avante).
+  - `cursoragent.nvim` – Cursor `agent` CLI in a split terminal (`<leader>CC/Ca/Cp/Cr/Cs`).
+  - `doc-workflow.lua` – `:ArcNew`, `:AdrNew`, `:PlanNew`, `:DocList`; deprecated `:DocNew`.
   - `copilot.lua` – adjusts `zbirenbaum/copilot.lua` defaults to disable Copilot’s
     inline suggestions and panel while still allowing it to be used by other tools.
 
@@ -166,6 +187,7 @@ This module is the preferred place to add shared debugging‑related helpers.
 
 ## Guidance for future agents
 
+- **Context doc:** Prefer [agent-context.md](agent-context.md) for a quick index and conventions; use this file (WARP.md) for detailed workflows and structure.
 - Treat this repo as Neovim configuration, not an application: there is no
   top‑level build or test entrypoint.
 - When editing behavior for a specific language, prefer adding or updating a
