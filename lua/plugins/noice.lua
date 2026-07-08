@@ -4,6 +4,12 @@
 return {
   "folke/noice.nvim",
   opts = function(_, opts)
+    -- Render the command line at the classic bottom position instead of the
+    -- floating cmdline_popup, which was not showing the text as you type.
+    -- This keeps every other noice feature (messages, LSP docs, notifications).
+    opts.cmdline = opts.cmdline or {}
+    opts.cmdline.view = "cmdline"
+
     opts.routes = opts.routes or {}
     -- Route ERROR and WARN notifications to split view so they stay until dismissed.
     table.insert(opts.routes, {
