@@ -91,3 +91,8 @@ vim.keymap.set("v", "<leader>ae", function()
     vim.notify("Avante not loaded", vim.log.levels.WARN)
   end
 end, { desc = "Avante: edit (visual selection)" })
+
+-- Toggle the gitsigns gutter (signs) on/off. Sits in the <leader>u ("ui")
+-- toggle namespace. gitsigns also has toggle_current_line_blame / toggle_deleted
+-- / toggle_word_diff if you want to bind those too.
+vim.keymap.set("n", "<leader>ug", "<cmd>Gitsigns toggle_signs<cr>", { desc = "Toggle Git Signs" })
