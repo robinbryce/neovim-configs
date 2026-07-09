@@ -126,7 +126,9 @@ globally.
 Each file in `lua/plugins/` returns one or more lazy.nvim plugin specs. Common
 patterns:
 - Language tooling specs:
-  - `go-gopls-lsp.lua` – configures Go LSP (`gopls`) with custom build tags.
+  - `lsp-overrides.lua` – LSP defaults (inlay hints off; upstream Mason integration).
+  - `lsp-nav.lua` – `gpd`/`gpi`/`gpr` peek and browse via FzfLua.
+  - `go-gopls-lsp.lua` – `gopls` build tags + Mason ensure_installed for Go tools.
   - `go-neotest.lua` – extends `neotest` with Go support and shared test tags.
   - `go-nvim-dap.lua` – configures delve flags for Go DAP sessions.
   - `python-format.lua` – configures `conform.nvim` to format Python with `black`

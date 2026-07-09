@@ -33,7 +33,7 @@ Neovim config built on **LazyVim** (lazy.nvim): upstream LazyVim plugins plus pr
 Each file returns one or more lazy.nvim specs. Add/change behavior here; don’t edit upstream LazyVim.
 
 - **AI:** `avante.lua` (Claude, agentic, `avante.md` + `global-ai-instructions.md`), `cursoragent.nvim` (`terminal_cmd = agent`, `<leader>CC/Ca/Cp/Cr/Cs`, `:PlanNew`), `blink-cmp-avante.lua` (LSP before Avante in sources). Copilot disabled elsewhere; Avante + Claude primary.
-- **LSP / format / lint:** `lsp-modern-mason.lua`, `go-gopls-lsp.lua`, `python-lsp.lua`, `python-format.lua`, `python-lint.lua`, `solidity.lua`, `toml.lua`, `markdown-conform-formtters.lua`, `markdownlint.lua`.
+- **LSP / format / lint:** `lsp-overrides.lua`, `lsp-nav.lua` (`gpd`/`gpi`/`gpr` peek+browse), `go-gopls-lsp.lua`, `python-lsp.lua`, `python-format.lua`, `python-lint.lua`, `solidity.lua`, `toml.lua`, `markdown-conform-formtters.lua`, `markdownlint.lua`.
 - **Test / debug:** `test.lua` (neotest), `go-neotest.lua`, `go-nvim-dap.lua`, `dap.adapters.lua`, `mason-nvim-dap.lua`; shared DAP helpers in `lua/util/dap.lua`.
 - **UX / nav:** `aerial.lua`, `neo-tree.lua`, `tmux-navigator.lua`, `snacks.lua`, `keymap-leader-scrolloff.lua`, `colorscheme-catppuccin.lua`.
 - **Docs / rail 2:** `doc-workflow.lua` — `:ArcNew`, `:AdrNew`, `:PlanNew`, `:DocList` (files under **buffer git root** `docs/`); `:DocNew` deprecated.
@@ -84,6 +84,8 @@ lua/plugins/avante.lua
 lua/plugins/cursoragent.lua
 lua/plugins/blink-cmp-avante.lua
 lua/plugins/doc-workflow.lua
+lua/plugins/lsp-overrides.lua
+lua/plugins/lsp-nav.lua
 lua/plugins/go-gopls-lsp.lua
 lua/plugins/go-neotest.lua
 lua/plugins/go-nvim-dap.lua
