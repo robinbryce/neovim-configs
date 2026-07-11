@@ -30,6 +30,12 @@ return {
       },
     }, opts.sources.providers or {})
 
+    -- Native cmdline (see plugins/noice.lua). Blink cmdline UI was the only
+    -- visible piece when typing ":" and hid the actual command line.
+    opts.cmdline = vim.tbl_deep_extend("force", opts.cmdline or {}, {
+      enabled = false,
+    })
+
     return opts
   end,
 }

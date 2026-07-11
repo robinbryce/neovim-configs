@@ -12,6 +12,10 @@ vim.filetype.add({
 })
 vim.g.enable_notify_logging = false -- set to true temporarily if you need notify.log for diagnostics
 
+-- Native ex/cmdline row must be visible (noice cmdline UI is off; see plugins/noice.lua).
+vim.o.cmdheight = 1
+vim.o.showcmd = true
+
 -- Python provider (pyenv-compatible)
 vim.g.python3_host_prog = vim.fn.expand("$HOME/wb/.pyenv/versions/3.11.5/bin/python")
 
