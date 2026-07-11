@@ -23,16 +23,27 @@ return {
         end
       end
 
-      local Config = require("lazyvim.config")
       vim.api.nvim_set_hl(0, "DapStoppedLine", { default = true, link = "Visual" })
 
-      for name, sign in pairs(Config.icons.dap) do
-        sign = type(sign) == "table" and sign or { sign }
-        vim.fn.sign_define(
-          "Dap" .. name,
-          { text = sign[1], texthl = sign[2] or "DiagnosticInfo", linehl = sign[3], numhl = sign[3] }
-        )
+      -- nvim-dap still uses sign_define for its own signs on 0.12 (only the
+      -- diagnostic-sign path was removed). Guard against double-definition when
+      -- LazyVim dap.core also runs.
+      local function define_dap_signs()
+        local icons = require("lazyvim.config").icons.dap
+        for name, sign in pairs(icons) do
+          sign = type(sign) == "table" and sign or { sign }
+          local sign_name = "Dap" .. name
+          if vim.tbl_isempty(vim.fn.sign_getdefined(sign_name)) then
+            vim.fn.sign_define(sign_name, {
+              text = sign[1],
+              texthl = sign[2] or "DiagnosticInfo",
+              linehl = sign[3],
+              numhl = sign[3],
+            })
+          end
+        end
       end
+      define_dap_signs()
 
       dap.adapters["pwa-node"] = {
         type = "server",
