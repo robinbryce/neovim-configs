@@ -18,17 +18,31 @@ local function navigate(d)
     require("nvim-tmux-navigation")[d.tmux_fn]()
     return
   end
-  local winnr = vim.fn.winnr()
+  local from = vim.api.nvim_get_current_win()
   pcall(vim.cmd, "wincmd " .. d.wincmd)
-  if vim.fn.winnr() ~= winnr then
-    return
+  if vim.api.nvim_get_current_win() ~= from then
+    return -- moved to another nvim window; nothing to hand over
   end
-  vim.fn.system({ "herdr", "pane", "focus", "--direction", d.herdr, "--pane", pane })
+  -- Fire and forget: herdr moves the focus itself, and blocking on it would
+  -- stall the UI at the split edge.
+  vim.system({
+    vim.env.HERDR_BIN_PATH or "herdr",
+    "pane",
+    "focus",
+    "--direction",
+    d.herdr,
+    "--pane",
+    pane,
+  })
 end
 
+-- Scheduled so the stopinsert mode change is processed before wincmd runs,
+-- same as the old <C-\><C-n> key-sequence prefix did.
 local function navigate_from_terminal(d)
   vim.cmd("stopinsert")
-  navigate(d)
+  vim.schedule(function()
+    navigate(d)
+  end)
 end
 
 return {
