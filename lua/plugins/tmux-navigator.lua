@@ -1,51 +1,34 @@
--- Seamless <C-h/j/k/l> between nvim splits and the surrounding multiplexer.
---
---   tmux    -- nvim-tmux-navigation, exactly as before.
---   herdr   -- handled below. herdr exports $HERDR_PANE_ID into every pane. The
---              herdr side (dotfiles bin/herdr-nav.sh, bound to bare
---              ctrl+h/j/k/l) forwards the chord into this pane whenever nvim is
---              the foreground process; we move within nvim and, when already at
---              the edge window, call back out with `herdr pane focus`.
---   neither -- plain wincmd, via nvim-tmux-navigation's own fallback.
---
--- The herdr branch is entered only when $HERDR_PANE_ID is set, so the tmux path
--- is unchanged.
+local directions = {
+  h = { wincmd = "h", herdr = "left", tmux_fn = "NvimTmuxNavigateLeft", desc = "Navigate Left" },
+  j = { wincmd = "j", herdr = "down", tmux_fn = "NvimTmuxNavigateDown", desc = "Navigate Down" },
+  k = { wincmd = "k", herdr = "up", tmux_fn = "NvimTmuxNavigateUp", desc = "Navigate Up" },
+  l = { wincmd = "l", herdr = "right", tmux_fn = "NvimTmuxNavigateRight", desc = "Navigate Right" },
+}
 
-local tmux_cmd = { h = "Left", j = "Down", k = "Up", l = "Right" }
-local herdr_dir = { h = "left", j = "down", k = "up", l = "right" }
-
-local function navigate(key)
-  if not vim.env.HERDR_PANE_ID then
-    vim.cmd("NvimTmuxNavigate" .. tmux_cmd[key])
+-- herdr sets $HERDR_PANE_ID ambiently on every pane, the same way tmux sets
+-- $TMUX -- but the nvim-tmux-navigation plugin only ever checks $TMUX, so
+-- under herdr it silently falls back to vim-only navigation and never crosses
+-- out at a split edge. Handle herdr ourselves: move within vim first, and
+-- only hand off to `herdr pane focus` if the window didn't change (i.e. we're
+-- at the edge). Falls through to the plugin's own tmux handling otherwise, so
+-- behaviour under tmux (or plain vim) is unchanged.
+local function navigate(d)
+  local pane = vim.env.HERDR_PANE_ID
+  if not pane then
+    require("nvim-tmux-navigation")[d.tmux_fn]()
     return
   end
-
-  local from = vim.api.nvim_get_current_win()
-  vim.cmd.wincmd(key)
-  if vim.api.nvim_get_current_win() ~= from then
-    return -- moved to another nvim window; nothing to hand over
+  local winnr = vim.fn.winnr()
+  pcall(vim.cmd, "wincmd " .. d.wincmd)
+  if vim.fn.winnr() ~= winnr then
+    return
   end
-
-  -- Already at the edge: cross into the neighbouring herdr pane. Fire and
-  -- forget, herdr moves the focus itself.
-  vim.system({
-    vim.env.HERDR_BIN_PATH or "herdr",
-    "pane",
-    "focus",
-    "--direction",
-    herdr_dir[key],
-    "--pane",
-    vim.env.HERDR_PANE_ID,
-  })
+  vim.fn.system({ "herdr", "pane", "focus", "--direction", d.herdr, "--pane", pane })
 end
 
--- Terminal mode: leave terminal input before moving, same as the old
--- <C-\><C-n> prefix did. Scheduled so the mode change lands before wincmd.
-local function navigate_term(key)
+local function navigate_from_terminal(d)
   vim.cmd("stopinsert")
-  vim.schedule(function()
-    navigate(key)
-  end)
+  navigate(d)
 end
 
 return {
@@ -56,18 +39,18 @@ return {
   },
 
   keys = {
-    { "<C-h>", function() navigate("h") end, desc = "Navigate Left" },
-    { "<C-j>", function() navigate("j") end, desc = "Navigate Down" },
-    { "<C-k>", function() navigate("k") end, desc = "Navigate Up" },
-    { "<C-l>", function() navigate("l") end, desc = "Navigate Right" },
+    { "<C-h>", function() navigate(directions.h) end, desc = "Navigate Left" },
+    { "<C-j>", function() navigate(directions.j) end, desc = "Navigate Down" },
+    { "<C-k>", function() navigate(directions.k) end, desc = "Navigate Up" },
+    { "<C-l>", function() navigate(directions.l) end, desc = "Navigate Right" },
     { "<C-\\>", "<cmd>NvimTmuxNavigateLastActive<cr>", desc = "Navigate LastActive" },
     { "<C-Space>", "<cmd>NvimTmuxNavigateNext<cr>", desc = "Navigate Next" },
     -- Terminal mode: escape terminal input first, then navigate.
     -- This lets <C-h/j/k/l> work from inside agent terminals.
-    { "<C-h>", function() navigate_term("h") end, mode = "t", desc = "Navigate Left" },
-    { "<C-j>", function() navigate_term("j") end, mode = "t", desc = "Navigate Down" },
-    { "<C-k>", function() navigate_term("k") end, mode = "t", desc = "Navigate Up" },
-    { "<C-l>", function() navigate_term("l") end, mode = "t", desc = "Navigate Right" },
+    { "<C-h>", function() navigate_from_terminal(directions.h) end, mode = "t", desc = "Navigate Left" },
+    { "<C-j>", function() navigate_from_terminal(directions.j) end, mode = "t", desc = "Navigate Down" },
+    { "<C-k>", function() navigate_from_terminal(directions.k) end, mode = "t", desc = "Navigate Up" },
+    { "<C-l>", function() navigate_from_terminal(directions.l) end, mode = "t", desc = "Navigate Right" },
   },
   config = true,
 }
