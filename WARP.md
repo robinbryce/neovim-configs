@@ -97,8 +97,8 @@ the other account.
 
 - `init.lua` is the main entry point. It:
   - Sets some global options (e.g., tab width, `autowrite`).
-  - Requires `config.cursor_account`, `config.configure_mcp_location`, `config.lazy`, and `config.suppress_warnings`.
-  - Adds a global mapping `<leader>o` to toggle the Aerial outline (AI / Avante uses the `<leader>a` prefix via LazyVim and `lua/config/keymaps.lua`).
+  - Requires `config.project_listen`, `config.account`, `config.lazy`, and `config.suppress_warnings`.
+  - Adds a global mapping `<leader>o` to toggle the Aerial outline (AI uses the `<leader>a` prefix; see `lua/plugins/ai-codecompanion.lua` and `lua/plugins/ai-claudecode.lua`).
 
 - `lua/config/` contains core editor configuration:
   - `lazy.lua` – lazy.nvim and LazyVim setup (plugin specs, performance tweaks,
@@ -151,18 +151,25 @@ patterns:
   - DAP helpers live in `lua/util/dap.lua` rather than in a plugin spec to allow
     reuse from multiple plugins.
 
-- AI and assistant integrations:
-  - `avante.lua` – configures `yetone/avante.nvim` (Claude + optional Cursor ACP),
-    project `avante.md`, and optional `global-ai-instructions.md` under `stdpath("config")`.
-  - `blink-cmp-avante.lua` – integrates Avante with blink.cmp (LSP listed before Avante).
-  - `cursoragent.nvim` – Cursor `agent` CLI in a split terminal (`<leader>CC/Ca/Cp/Cr/Cs`).
+- AI and assistant integrations (Claude-only; all keys under `<leader>a`):
+  - `ai-claudecode.lua` (primary, subscription) – `coder/claudecode.nvim`: the Claude Code
+    CLI in a right split (`<leader>ac`), launched via `scripts/claude-nvim.sh` with
+    `CLAUDE_CONFIG_DIR` set to `~/.claude-{personal,justgames}`. `<leader>ae` on a selection
+    (or file in normal mode) sends it as context, asks for an instruction and submits;
+    Claude's edits open as native diffs (`<leader>ay` accept, `<leader>an` deny). Launch keys
+    refuse when `config.account` finds no login / the wrong identity. `:PlanNew` opens a
+    session in plan mode.
+  - `ai-codecompanion.lua` (secondary, pay-per-token) – `olimorris/codecompanion.nvim` over
+    the Anthropic API: `<leader>aE` inline refine with in-place per-hunk diff, actions
+    palette and chat. The API key is resolved lazily by `lua/config/account.lua` (direnv
+    `ANTHROPIC_API_KEY`, else keychain `anthropic-api-key-{work,personal}`);
+    `global-ai-instructions.md` is appended to the chat system prompt.
+  - `ai-statusline.lua` – lualine `AI·<account>·<plan>` segment from `claude auth status`;
+    red when not logged in, wrong identity, or API-key auth. `:AiAccount work|personal`
+    switches at runtime; bare `:AiAccount` re-probes.
+  - `blink-cmp.lua` – LSP + LuaSnip completion only; no AI completion source, no Copilot.
   - `doc-workflow.lua` – `:ArcNew`, `:AdrNew`, `:PlanNew`, `:DocList`; deprecated `:DocNew`.
-  - `copilot.lua` – adjusts `zbirenbaum/copilot.lua` defaults to disable Copilot’s
-    inline suggestions and panel while still allowing it to be used by other tools.
-
-- Logging and diagnostics:
-  - `notify-logger-with-warning-suppressions.lua` – see “logs and notifications”
-    above.
+  - `<leader>ia` reports the resolved account, key source, and Claude Code connection.
 
 When adding or modifying plugins, follow the existing pattern: create a new Lua
 module under `lua/plugins/` that returns one or more plugin spec tables, rather

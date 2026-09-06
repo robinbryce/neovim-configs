@@ -7,9 +7,7 @@ vim.opt.shiftwidth = 2
 vim.opt.expandtab = true
 
 require("config.project_listen") -- deterministic RPC socket; before plugins
-require("config.cursor_account")
-require("config.anthropic_account")
-require("config.configure_mcp_location")
+require("config.account") -- work/personal AI account: CLAUDE_CONFIG_DIR + lazy API key
 require("config.lazy")
 require("config.suppress_warnings")
 -- global keymap

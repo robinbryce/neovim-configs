@@ -1,5 +1,5 @@
 -- Document workflow: numbered ARC/ADR in the *current buffer's git repo* docs/.
--- Interactive planning uses rail 2 (Cursor agent / :PlanNew), not in-repo plan files.
+-- Interactive planning uses rail 2 (Claude Code plan mode / :PlanNew), not in-repo plan files.
 --
 -- lazy-fullstack's own docs/ is only for Neovim tooling (e.g. cursor-agent ledger).
 
@@ -41,7 +41,7 @@ This project uses **ARC** and **ADR** under `docs/arc/` and `docs/adr/`.
 Numbered filenames follow `arc-NNNN-slug.md` and `adr-NNNN-slug.md`.
 
 **Interactive planning** (multi-session, agent-native persistence) is separate from
-this tree; use Neovim `:PlanNew` / `<leader>Cp` (Cursor agent plan mode) for that.
+this tree; use Neovim `:PlanNew` / `<leader>ap` (Claude Code plan mode) for that.
 
 ---
 
@@ -169,15 +169,30 @@ return {
     end, { desc = "Deprecated — use :ArcNew / :AdrNew" })
 
     vim.api.nvim_create_user_command("PlanNew", function(opts)
+      -- Rail 2: interactive planning in Claude Code's plan mode (read-only
+      -- exploration, no edits until you approve). The permission flag only
+      -- applies to a freshly spawned CLI; if one is already running the seed is
+      -- still sent to it.
       local seed = vim.trim(opts.args or "")
+      vim.cmd("ClaudeCodeOpen --permission-mode plan")
       if seed ~= "" then
         vim.fn.setreg("+", seed)
-        vim.notify("Plan seed yanked to + register — paste after agent opens", vim.log.levels.INFO, { title = "PlanNew" })
+        -- Give the CLI a moment to draw its prompt before pasting; the seed is
+        -- inserted without submitting so it can be edited first.
+        vim.defer_fn(function()
+          local ok = pcall(vim.cmd, { cmd = "ClaudeCodeSendText", args = { seed }, bang = true })
+          if not ok then
+            vim.notify(
+              "Plan seed is in the + register — paste it into Claude",
+              vim.log.levels.INFO,
+              { title = "PlanNew" }
+            )
+          end
+        end, 2000)
       end
-      vim.cmd("CursorAgentPlan")
     end, {
       nargs = "?",
-      desc = "Rail 2: Cursor agent plan mode; optional seed yanked to +",
+      desc = "Rail 2: Claude Code plan mode; optional seed pasted into the prompt",
     })
 
     vim.api.nvim_create_user_command("DocList", function()
@@ -206,7 +221,7 @@ return {
   keys = {
     { "<leader>dna", ":ArcNew ", desc = "Doc: new ARC" },
     { "<leader>dnd", ":AdrNew ", desc = "Doc: new ADR" },
-    { "<leader>dnp", ":PlanNew ", desc = "Rail 2: PlanNew (agent plan)" },
+    { "<leader>dnp", ":PlanNew ", desc = "Rail 2: PlanNew (Claude Code plan mode)" },
     { "<leader>dl", "<cmd>DocList<CR>", desc = "Doc: list / browse" },
   },
 }
